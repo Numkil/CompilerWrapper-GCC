@@ -1,0 +1,84 @@
+#!/usr/bin/perl
+#Cli frontend for the gcc wrapper
+use strict;
+use warnings;
+use Getopt::Long; #Package for parsing options
+use CompilerWrapper::GCC;
+
+#Check if user has provided at least 1 argument to look into.
+my $numargs = @ARGV;
+if(!$numargs){
+    print "Please provide at least 1 argument where the script can start looking!\n";
+    exit;
+}
+
+#Using the Getopt package to parse every option from the ARGV
+Getopt::Long::Configure("bundling");
+GetOptions(
+    "glut|g" => \&addGlutFlags,
+    "skip|s" => \&setSkipRevision,
+    "outputname|o=s" => \&setOutputName,
+    "debug|d" => \&addDebugFlags,
+    "unsafe|u" => \&compileUnsafe,
+    "<>" => \&findSourceFiles, #Not a known flag so assuming a filepath && passing it on to the backend
+);
+
+#If there aren't any sourcefiles found with the given argument we can die
+if(!&getSourceFiles()){print("No source files found with the given arguments!\n");exit;}
+
+#Report files found by File::Find::Rule
+print "I found the following files.\n";
+foreach my $item (&getSourceFiles()){
+    print "\t$item\n";
+}
+
+#If the -y flag has been given, skip to compiling and don't omit files
+if(!&getSkipRevision()){
+    my $happy = 0;
+    do{
+        #You can now enter the names or directories of files you don't want to use for compiling
+        #Be warned the regex behind this is greedy and will match too much if you aren't careful
+        print "Exclude some files? Type N to stop the loop.\n";
+        my $done = 0;
+        while(!$done){
+            chomp(my $input = <STDIN>);
+            eval { "" =~ /$input/ }; #Evaluate the regex to prevent illegal ones from crashing the script
+            if($@){print "INVALID PATTERN $@";$input = " ";}
+            if($input =~ /^[Nn]$/){
+                $done = 1;
+            }else{
+                &omitFilesByMatching($input);
+            }
+        }
+
+        #Report files captured by the regex
+        if(&getExclusions()){
+            print "The following files will be omitted\n";
+            foreach my $item (&getExclusions()){
+                print "\t$item\n";
+            }
+
+            #Check if user confirms with the matched files
+            print("Are you sure you want to omit these files? (y)es, (n)o: ");
+            chomp(my $input = <STDIN>);
+            if($input =~ /^[yY]$/){
+                $happy = 1;
+            }else{
+                #Not happy so resetting sourcefiles and printing the overview again
+                print("Lets try again!\n");
+                &resetExclusions();
+                foreach my $item (&getSourceFiles()){
+                    print "\t$item\n";
+                }
+            }
+        }else{
+            $happy = 1;
+        }
+    }while(!$happy);
+
+    #If there aren't any sourcefiles left we can die
+    if(!&getSourceFiles()){print("No source files left!\n");exit;}
+}
+
+print "Compiling....\n";
+system(&getCommand());  #Finally run the command

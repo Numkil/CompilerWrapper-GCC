@@ -1,6 +1,6 @@
-GppWrapper
+CompilerWrapper-GCC
 =======
-GppWrapper aims to be a simplified wrapper for the g++, with sane defaults and
+CompilerWrapper-GCC aims to be a simplified wrapper for the g++, with sane defaults and
 powerful options.
 
 * Flags with relations to each other are bundled together and
@@ -19,9 +19,10 @@ Details
 ------------
 **Required packages:** 
 
-    Perl, Perl-Find::File::Rule, Perl-FindBin, Perl-Getopt::Long,
+    Perl, Perl-Find::File::Rule 
+    Perl-Getopt::Long,
     Perl-List::MoreUtils
-    (for testing)Perl-Test::Simple
+    (for testing)Perl-Test::More
 
 **Installation:**
 
@@ -32,10 +33,9 @@ To install this module, run the following commands:
 	make test
 	make install
 
-
 **Usage:**
 
-    1: gppcompile[paths to directories of the sourcefiles you want][possible flags]
+    1: compilerwrapper [paths to directories of the sourcefiles you want][possible flags]
     2: Review the list of files found by the script
     3: Type in the part of the names of the files you want to exclude 
        The regex is quite greedy so be careful
@@ -62,3 +62,5 @@ To install this module, run the following commands:
     
 1: Playing around with different compiler flags, trying to find the perfect "general use" combination.
    I want it to be balanced and usable in 99% of use cases for beginners.
+
+2: More tests

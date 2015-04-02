@@ -7,10 +7,12 @@ WriteMakefile(
     NAME             => 'CompilerWrapper::GCC',
     AUTHOR           => q{Numkil <Numkil@hotmail.com>},
     VERSION_FROM     => 'lib/CompilerWrapper/GCC.pm',
-    ABSTRACT_FROM    => 'lib/CompilerWrapper/GCC.pm',
+    ABSTRACT         => 'An extensive wrapper to the GCC for learning purposes',
     LICENSE          => 'Artistic_2_0',
-    PL_FILES         => {},
     MIN_PERL_VERSION => 5.006,
+    EXE_FILES        => [
+        "script/compilerwrapper"
+    ],
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
     },
@@ -18,8 +20,9 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
-        #'ABC'              => 1.6,
-        #'Foo::Bar::Module' => 5.0401,
+        'List::MoreUtils' => 0,
+        'File::Find::Rule' => 0,
+        'Getopt::Long' => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'CompilerWrapper-GCC-*' },

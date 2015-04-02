@@ -3,51 +3,213 @@ package CompilerWrapper::GCC;
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
+use List::MoreUtils qw(uniq);
+use File::Find::Rule;
 
 =head1 NAME
 
-CompilerWrapper::GCC - The great new CompilerWrapper::GCC!
+CompilerWrapper::GCC - Wrapper for the g++ command !
 
 =head1 VERSION
 
-Version 0.01
+Version 1.00
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '1.00';
 
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
-    use CompilerWrapper::GCC;
-
-    my $foo = CompilerWrapper::GCC->new();
-    ...
+CompilerWrapper-GCC aims to be a simplified wrapper for the g++, with sane defaults and
+powerful options.
 
 =head1 EXPORT
+findSourceFiles
+omitFilesByMatching
+getSourceFiles
+setOutputName
+resetExclusions
+getExclusions
+getCommand
+setSkipRevision
+getSkipRevision
+addGlutFlags
+addDebugFlags
+compileUnsafe
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+=cut
+require Exporter;
+
+our @ISA = qw(Exporter);
+our @EXPORT =
+qw(
+findSourceFiles
+omitFilesByMatching
+getSourceFiles
+setOutputName
+resetExclusions
+getExclusions
+getCommand
+setSkipRevision
+getSkipRevision
+addGlutFlags
+addDebugFlags
+compileUnsafe
+);
+
+my @sourcefiles; # This array stores all the cpp filenames that will be compiled
+my @exclusions; # This array stores all the cpp filenames that have been found but deleted
+my $command = "g++ -Wall -Wextra -Werror -Wcast-align -Wcast-qual -Wconversion -pedantic -std=c++11 ";
+my $skipfilefilter = 0;
+my $outputname = "-o a.out";
+
 
 =head1 SUBROUTINES/METHODS
 
-=head2 function1
-
+=head2 findSourceFiles
+Checks if argument is a directory name or a filename
+and passes the argument to the relevant private function
+Returns success
 =cut
+sub findSourceFiles{
+    my ($filepath) = @_;
 
-sub function1 {
+    if($filepath =~ /\.cpp$/){
+        # Ends with .cpp so assuming file
+        return &addDirectFile($filepath);
+    }
+    # No pattern in string so assuming directory
+    return &addDirectory($filepath);
 }
 
-=head2 function2
-
+=head2 addDirectFile
+Checks if a file at the giver path exists
+if yes adds it to @sourcefiles
+Returns success
 =cut
+sub addDirectFile{
+    my ($filepath) = @_;
 
-sub function2 {
+    if(-e $filepath){
+        push(@sourcefiles, $filepath);
+        @sourcefiles = uniq @sourcefiles; # Remove duplicates
+        return 1;
+    }
+    return 0;
 }
+
+=head2 addDirectory
+Accepts a directory path, uses File::Find to get all the files that end with .cpp
+and adds it to @sourcefiles
+Returns success
+=cut
+sub addDirectory{
+    my ($directory) = @_;
+
+    my @cppfilesindir = File::Find::Rule->file()->name('*.cpp')->in($directory);
+    if(@cppfilesindir){
+        push(@sourcefiles, @cppfilesindir);
+        @sourcefiles = uniq @sourcefiles; # Remove duplicates
+        return 1;
+    }
+    return 0;
+}
+
+=head2 omitFilesByMatching
+Accepts a piece of text and removes every occurence in @sourcefiles
+where the piece of text matches.
+Everything deleted will be saved in @exclusions for safekeeping & reporting
+Returns undef
+=cut
+sub omitFilesByMatching{
+    my ($input) = @_;
+    push(@exclusions, grep(/$input/i, @sourcefiles)); # Store everything that matches seperately
+    @sourcefiles = grep(!/$input/i, @sourcefiles); # Keep everything that doesn't match
+}
+
+=head2 resetExclusions
+Pushes @exclusions back on @sourcefiles
+Returns undef
+=cut
+sub resetExclusions{
+    push(@sourcefiles, @exclusions);
+    $#exclusions = -1;
+}
+
+=head2 getSourceFiles
+Returns the array of all the found and non-deleted filenames sorted
+=cut
+sub getSourceFiles{
+    @sourcefiles = sort(@sourcefiles);
+    return @sourcefiles;
+}
+
+=head2 getExclusions
+Returns the array of all the found and deleted filenames sorted
+=cut
+sub getExclusions{
+    @exclusions = sort(@exclusions);
+    return @exclusions;
+}
+
+=head2 setOutputName
+Changes the variable holding the output name of the file produced by the script
+Returns undef
+=cut
+sub setOutputName{
+    my (undef, $filename) = @_;
+    $outputname = "-o $filename";
+}
+
+=head2 setSkipRevision
+Toggles skipping of the manual verification of files found by this script
+Returns undef
+=cut
+sub setSkipRevision{
+    $skipfilefilter = $skipfilefilter ? 0 : 1;
+}
+
+=head2 getSkipRevision
+Returns 1 or 0
+=cut
+sub getSkipRevision{
+    return $skipfilefilter;
+}
+
+=head2 addGlutFlags
+Add flags for compiling with opengl support
+Returns undef
+=cut
+sub addGlutFlags{
+    $command = "$command-lglut -lm -lGL -lGLU ";
+}
+
+=head2 addDebugFlags
+Add extra debugging flags -> I prefer GDB so using those flags
+=cut
+sub addDebugFlags{
+    $command = "$command-ggdb -g3 ";
+}
+
+=head2 compileUnsafe
+Remove -werror flag causing project to build even with errors
+=cut
+sub compileUnsafe{
+    $command =~ s/\-Werror//
+}
+
+=head2 getCommand
+Returns what we wanted all along, a string we can parse to terminal invoking g++
+=cut
+sub getCommand{
+    my $output = $command;
+    foreach my $item (@sourcefiles){
+        $output = "$output$item ";
+    }
+    return "$output$outputname";
+}
+
 
 =head1 AUTHOR
 
@@ -59,14 +221,11 @@ Please report any bugs or feature requests to C<bug-compilerwrapper-gcc at rt.cp
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=CompilerWrapper-GCC>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
-
-
-
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc CompilerWrapper::GCC
+perldoc CompilerWrapper::GCC
 
 
 You can also look for information at:
