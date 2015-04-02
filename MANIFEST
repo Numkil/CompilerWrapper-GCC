@@ -1,9 +1,17 @@
 Changes
+ignore.txt
 lib/CompilerWrapper/GCC.pm
 Makefile.PL
 MANIFEST			This list of files
 README
+README.md
+script/compilerwrapper
 t/00-load.t
+t/boilerplate.t
+t/GCC.t
 t/manifest.t
+t/Mockups/fake1.cpp
+t/Mockups/fake2.cpp
+t/Mockups/nocpp.c
 t/pod-coverage.t
 t/pod.t
