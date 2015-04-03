@@ -18,6 +18,8 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Test::More' => 0,
+        'Test::Differences' => 0,
+        'Test::Class' => 0,
     },
     PREREQ_PM => {
         'List::MoreUtils' => 0,
