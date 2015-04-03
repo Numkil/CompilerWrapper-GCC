@@ -16,7 +16,7 @@ Version 1.01
 
 =cut
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 
 =head1 SYNOPSIS
@@ -129,6 +129,7 @@ sub omitFilesByMatching{
     my ($input) = @_;
     push(@exclusions, grep(/$input/i, @sourcefiles)); # Store everything that matches seperately
     @sourcefiles = grep(!/$input/i, @sourcefiles); # Keep everything that doesn't match
+    @exclusions= uniq @exclusions; # Remove duplicates
 }
 
 =head2 resetExclusions
@@ -137,6 +138,7 @@ Returns undef
 =cut
 sub resetExclusions{
     push(@sourcefiles, @exclusions);
+    @sourcefiles = uniq @sourcefiles; # Remove duplicates
     $#exclusions = -1;
 }
 

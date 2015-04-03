@@ -9,3 +9,6 @@ Revision history for CompilerWrapper-GCC
 1.01    03/03/15
         Update export variables of module to use EXPORT_OK instead of EXPORT
 
+1.02    04/03/15
+        Excluding and restoring filenames should not introduce duplicates in
+        the api
