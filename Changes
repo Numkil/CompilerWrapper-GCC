@@ -3,6 +3,9 @@ Revision history for CompilerWrapper-GCC
 0.01    Date/time
         First version, released on an unsuspecting world.
 
-1.00    Date/time
+1.00    02/03/15 
         This is the first complete installable version of CompilerWrapper-GCC
+
+1.01    03/03/15
+        Update export variables of module to use EXPORT_OK instead of EXPORT
 

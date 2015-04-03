@@ -12,11 +12,11 @@ CompilerWrapper::GCC - Wrapper for the g++ command !
 
 =head1 VERSION
 
-Version 1.00
+Version 1.01
 
 =cut
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 
 =head1 SYNOPSIS
@@ -25,38 +25,41 @@ CompilerWrapper-GCC aims to be a simplified wrapper for the g++, with sane defau
 powerful options.
 
 =head1 EXPORT
-findSourceFiles
-omitFilesByMatching
-getSourceFiles
-setOutputName
-resetExclusions
-getExclusions
-getCommand
-setSkipRevision
-getSkipRevision
-addGlutFlags
-addDebugFlags
-compileUnsafe
+all =
+    findSourceFiles
+    omitFilesByMatching
+    getSourceFiles
+    setOutputName
+    resetExclusions
+    getExclusions
+    getCommand
+    setSkipRevision
+    getSkipRevision
+    addGlutFlags
+    addDebugFlags
+    compileUnsafe
 
 =cut
 require Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT =
-qw(
-findSourceFiles
-omitFilesByMatching
-getSourceFiles
-setOutputName
-resetExclusions
-getExclusions
-getCommand
-setSkipRevision
-getSkipRevision
-addGlutFlags
-addDebugFlags
-compileUnsafe
+our %EXPORT_TAGS = (
+    'all' => [ qw(
+        findSourceFiles
+        omitFilesByMatching
+        getSourceFiles
+        setOutputName
+        resetExclusions
+        getExclusions
+        getCommand
+        setSkipRevision
+        getSkipRevision
+        addGlutFlags
+        addDebugFlags
+        compileUnsafe
+    ) ],
 );
+our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 my @sourcefiles; # This array stores all the cpp filenames that will be compiled
 my @exclusions; # This array stores all the cpp filenames that have been found but deleted
