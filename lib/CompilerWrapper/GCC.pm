@@ -16,7 +16,7 @@ Version 1.01
 
 =cut
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 
 =head1 SYNOPSIS
@@ -187,14 +187,18 @@ Add flags for compiling with opengl support
 Returns undef
 =cut
 sub addGlutFlags{
-    $command = "$command-lglut -lm -lGL -lGLU ";
+    if($command !~ /-lglut -lm -lGL -lGLU/){
+        $command = "$command-lglut -lm -lGL -lGLU ";
+    }
 }
 
 =head2 addDebugFlags
 Add extra debugging flags -> I prefer GDB so using those flags
 =cut
 sub addDebugFlags{
-    $command = "$command-ggdb -g3 ";
+    if($command !~ /-ggdb -g3/){
+        $command = "$command-ggdb -g3 ";
+    }
 }
 
 =head2 compileUnsafe

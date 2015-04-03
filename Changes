@@ -12,3 +12,6 @@ Revision history for CompilerWrapper-GCC
 1.02    04/03/15
         Excluding and restoring filenames should not introduce duplicates in
         the api
+
+1.03    04/03/15
+        Flags should never be put twice in a command
